@@ -12,8 +12,12 @@ echo "Configuring project in: $PROJECT_ROOT"
 LOCAL_PROPS="$PROJECT_ROOT/local.properties"
 MODERN_SDK="/home/linda/Android/Sdk"
 
-echo "Setting sdk.dir to $MODERN_SDK in local.properties..."
-echo "sdk.dir=$MODERN_SDK" > "$LOCAL_PROPS"
+if [ -f "$LOCAL_PROPS" ] && grep -q "sdk.dir" "$LOCAL_PROPS"; then
+    echo "local.properties already exists and has sdk.dir. Skipping SDK configuration to preserve Android Studio settings."
+else
+    echo "Setting sdk.dir to $MODERN_SDK in local.properties..."
+    echo "sdk.dir=$MODERN_SDK" > "$LOCAL_PROPS"
+fi
 
 # 2. Configure launch.json
 VSCODE_DIR="$PROJECT_ROOT/.vscode"
@@ -53,6 +57,42 @@ if [ ! -f "$LAUNCH_JSON" ]; then
         PACKAGE_NAME="${PACKAGE_NAME}.MainActivity"
     fi
 
+    # Create tasks.json for Smart Build
+    TASKS_JSON="$VSCODE_DIR/tasks.json"
+    cat <<EOF > "$TASKS_JSON"
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Smart Build (Pick Flavor)",
+            "type": "shell",
+            "command": "\${workspaceFolder}/../scripts/build_generic_app.py \${workspaceFolder}",
+            "presentation": {
+                "reveal": "always",
+                "panel": "dedicated"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": [
+                    {
+                        "regexp": ".",
+                        "file": 1,
+                        "location": 2,
+                        "message": 3
+                    }
+                ],
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^Starting Gradle Build",
+                    "endsPattern": "^App Launched!"
+                }
+            }
+        }
+    ]
+}
+EOF
+
+    # Create launch.json
     cat <<EOF > "$LAUNCH_JSON"
 {
     "version": "0.2.0",
@@ -60,8 +100,10 @@ if [ ! -f "$LAUNCH_JSON" ]; then
         {
             "type": "android",
             "request": "launch",
-            "name": "Run on Device",
+            "name": "Run on Device (Smart Build)",
             "mainActivity": "$PACKAGE_NAME",
+            "apkFile": "\${workspaceFolder}/app/build/outputs/apk/debug/selected-debug.apk",
+            "preLaunchTask": "Smart Build (Pick Flavor)",
             "deviceId": ""
         }
     ]

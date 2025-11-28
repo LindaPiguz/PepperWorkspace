@@ -2,6 +2,10 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"name": "Raven (Android App)",
+			"path": "/home/linda/AndroidStudioProjects/Raven"
 		}
 	],
 	"extensions": {
