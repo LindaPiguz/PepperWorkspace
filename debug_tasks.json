@@ -1,0 +1,14 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Debug PATH",
+            "type": "shell",
+            "command": "echo $PATH && which avdmanager && avdmanager list avd",
+            "presentation": {
+                "reveal": "always",
+                "panel": "new"
+            }
+        }
+    ]
+}

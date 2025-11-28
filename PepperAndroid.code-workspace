@@ -1,0 +1,214 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"extensions": {
+		"recommendations": [
+			"seunlanlege.action-buttons",
+			"spmeesseman.vscode-taskexplorer",
+			"mathiasfrohlich.kotlin",
+			"nont.vscode-common-kotlin"
+		]
+	},
+	"settings": {
+		// --- MODERN SDK CONFIGURATION ---
+		// Crucial for Intellisense, Building, and the Android Extension
+		"android.sdkPath": "/home/linda/Android/Sdk",
+		"android.tools.adbPath": "/home/linda/Android/Sdk/platform-tools/adb",
+		// Configure the integrated terminal to use MODERN tools by default
+		"terminal.integrated.env.linux": {
+			"ANDROID_HOME": "/home/linda/Android/Sdk",
+			"ANDROID_SDK_ROOT": "/home/linda/Android/Sdk",
+			"PATH": "/home/linda/Android/Sdk/platform-tools:/home/linda/Android/Sdk/cmdline-tools/latest/bin:/home/linda/Android/Sdk/tools/bin:/home/linda/Android/Sdk/tools:${env:PATH}"
+		},
+		// --- GRADLE & BUILD AUTOMATION ---
+		// Automatically update build config when build files change (requires Red Hat Java / Gradle extension)
+		"java.configuration.updateBuildConfiguration": "automatic",
+		// --- UI & ICONS ---
+		// Configuration for 'seunlanlege.action-buttons' extension if installed.
+		// Provides clickable buttons in the status bar for common tasks.
+		"actionButtons": {
+			"defaultColor": "#ff0033", // Pepper Red
+			"commands": [
+				{
+					"name": "$(vm) Emulator",
+					"command": "tasks: 2. Start Pepper Emulator",
+					"tooltip": "Start the Legacy Pepper Emulator"
+				},
+				{
+					"name": "$(plug) Connect",
+					"command": "tasks: 3. Connect Physical Pepper",
+					"tooltip": "Connect to a physical robot via ADB"
+				},
+				{
+					"name": "$(sync) Auto-Build",
+					"command": "tasks: 6. Gradle: Continuous Build",
+					"tooltip": "Start Gradle Continuous Build"
+				}
+			]
+		},
+		"files.exclude": {
+			"**/.git": true,
+			"**/.ds_store": true,
+			"**/*.class": true
+		},
+		// --- AVD MANAGER FIXES ---
+		// Explicitly point to the tools we found to satisfy various extensions
+		"avdmanager.sdkPath": "/home/linda/Android/Sdk",
+		"avdmanager.executable": "/home/linda/Android/Sdk/tools/bin/avdmanager",
+		"android.tools.avdManagerPath": "/home/linda/Android/Sdk/tools/bin/avdmanager"
+	},
+	"tasks": {
+		"version": "2.0.0",
+		"inputs": [
+			{
+				"id": "pepperIP",
+				"description": "Enter Robot IP Address (e.g., 192.168.1.X)",
+				"default": "192.168.",
+				"type": "promptString"
+			}
+		],
+		"tasks": [
+			{
+				// --- MAIN MENU ---
+				"label": "0. Open Pepper Menu",
+				"type": "shell",
+				"command": "${workspaceFolder}/scripts/pepper_menu.sh",
+				"presentation": {
+					"reveal": "always",
+					"panel": "dedicated",
+					"focus": true
+				},
+				"group": {
+					"kind": "build",
+					"isDefault": true
+				},
+				"problemMatcher": []
+			},
+			{
+				// --- TASK 1: SETUP PROJECT ---
+				"label": "1. Setup Current Project",
+				"type": "shell",
+				"command": "${workspaceFolder}/scripts/setup_project.sh",
+				"icon": {
+					"id": "tools"
+				},
+				"presentation": {
+					"reveal": "always",
+					"panel": "shared"
+				},
+				"problemMatcher": []
+			},
+			{
+				// --- TASK 2: EMULATOR (Auto-Connect) ---
+				"label": "2. Start Pepper Emulator",
+				"type": "shell",
+				"command": "${workspaceFolder}/scripts/launch_emulator_auto_connect.sh",
+				"icon": {
+					"id": "vm"
+				},
+				"isBackground": true,
+				"presentation": {
+					"reveal": "always",
+					"panel": "new",
+					"focus": false
+				},
+				"group": "test",
+				"problemMatcher": {
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"location": 2,
+							"message": 3
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": "^.*Starting Emulator...*",
+						"endsPattern": "^.*Emulator Connected!.*"
+					}
+				}
+			},
+			{
+				// --- TASK 3: CONNECT ROBOT (GUI) ---
+				"label": "3. Connect Physical Pepper",
+				"type": "shell",
+				"command": "${workspaceFolder}/scripts/connect_physical_robot.sh",
+				"icon": {
+					"id": "plug"
+				},
+				"presentation": {
+					"reveal": "always",
+					"panel": "shared"
+				},
+				"group": "test",
+				"problemMatcher": []
+			},
+			{
+				// --- TASK 4: ROBOT VIEWER ---
+				"label": "4. Robot Viewer",
+				"type": "shell",
+				"command": "/home/linda/pepperUtilities/RobotSDK/API 7/tools/bin/robot_viewer",
+				"icon": {
+					"id": "eye"
+				},
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				}
+			},
+			{
+				// --- TASK 5: ANIMATION EDITOR ---
+				"label": "5. Animation Editor",
+				"type": "shell",
+				"command": "/home/linda/pepperUtilities/RobotSDK/Animation_Editor/animation_editor/animation-editor-2.9.5.124-linux64/bin/animation_editor_standalone",
+				"icon": {
+					"id": "clapperboard"
+				},
+				"presentation": {
+					"reveal": "always",
+					"panel": "new"
+				}
+			},
+			{
+				// --- TASK 6: GRADLE CONTINUOUS BUILD ---
+				// Watches for changes and rebuilds automatically
+				"label": "6. Gradle: Continuous Build",
+				"type": "shell",
+				"command": "./gradlew",
+				"args": [
+					"assembleDebug",
+					"--continuous"
+				],
+				"icon": {
+					"id": "sync"
+				},
+				"isBackground": true,
+				"presentation": {
+					"reveal": "silent",
+					"panel": "dedicated"
+				},
+				"group": "build",
+				"problemMatcher": "$gradle"
+			}
+		]
+	},
+	"launch": {
+		"version": "0.2.0",
+		"configurations": [
+			{
+				// Global Launch Configuration (Run with F5)
+				"type": "android",
+				"request": "launch",
+				"name": "Run App on Pepper (Workspace)",
+				"mainActivity": "Default",
+				"appSrcRoot": "${workspaceFolder}/app/src/main",
+				"apkFile": "${workspaceFolder}/app/build/outputs/apk/debug/app-debug.apk",
+				"adbPort": 5037
+			}
+		]
+	}
+}

@@ -1,0 +1,22 @@
+# Android
+*.iml
+.gradle/
+.idea/
+build/
+app/build/
+local.properties
+.DS_Store
+*.log
+captures/
+.externalNativeBuild/
+.cxx/
+
+# VS Code
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Pepper Workspace
+PepperMenu.desktop
