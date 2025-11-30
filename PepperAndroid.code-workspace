@@ -43,13 +43,17 @@
 			"defaultColor": "#0080f7ff",
 			"commands": [
 				{
+					"cwd": "${workspaceFolder}/scripts",
+					"command": "./launch_emulator_auto_connect.sh",
 					"name": "$(vm) Emulator",
-					"command": "${workspaceFolder}/scripts/launch_emulator_auto_connect.sh",
+					"singleInstance": true,
 					"tooltip": "Start the Legacy Pepper Emulator"
 				},
 				{
+					"cwd": "${workspaceFolder}/scripts",
+					"command": "./connect_physical_robot.sh",
 					"name": "$(plug) Connect IRL Pepper",
-					"command": "${workspaceFolder}/scripts/connect_physical_robot.sh",
+					"singleInstance": true,
 					"tooltip": "Connect to a physical robot via ADB"
 				},
 				{

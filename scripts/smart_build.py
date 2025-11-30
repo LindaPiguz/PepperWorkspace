@@ -233,14 +233,36 @@ def main():
             sys.exit(1)
             
         # Find APK
-        suffix = "debug.apk" if build_type == "Debug" else "release.apk"
-        apk_pattern = os.path.join(app_dir, "build", "outputs", "apk", "**", f"*-{suffix}")
-        apks = glob.glob(apk_pattern, recursive=True)
-        # Filter out 'selected' if it exists from previous runs
-        apks = [a for a in apks if "selected-" not in os.path.basename(a)]
+        # Find APK in specific flavor folder
+        # Folder structure: app/build/outputs/apk/{flavor1}{Flavor2}.../{buildType}/
+        folder_name = ""
+        for i, dim in enumerate(dimensions):
+            val = res['flavors'].get(dim, "")
+            if val:
+                if i == 0:
+                    folder_name += val
+                else:
+                    folder_name += val[0].upper() + val[1:]
+        
+        bt_lower = build_type.lower()
+        apk_dir = os.path.join(app_dir, "build", "outputs", "apk", folder_name, bt_lower)
+        
+        print(f"Looking for APK in: {apk_dir}")
+        
+        if not os.path.exists(apk_dir):
+            # Fallback to recursive search if folder structure differs
+            print("Specific folder not found, falling back to recursive search...")
+            suffix = "debug.apk" if build_type == "Debug" else "release.apk"
+            apk_pattern = os.path.join(app_dir, "build", "outputs", "apk", "**", f"*-{suffix}")
+            apks = glob.glob(apk_pattern, recursive=True)
+        else:
+            apks = glob.glob(os.path.join(apk_dir, "*.apk"))
+
+        # Filter out 'selected' and 'output-metadata.json'
+        apks = [a for a in apks if "selected-" not in os.path.basename(a) and "output-metadata" not in os.path.basename(a)]
         
         if not apks:
-            print("APK not found")
+            print(f"APK not found in {apk_dir}")
             sys.exit(1)
             
         latest_apk = max(apks, key=os.path.getctime)
