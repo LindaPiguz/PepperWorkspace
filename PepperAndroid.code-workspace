@@ -40,13 +40,12 @@
 		// Configuration for 'seunlanlege.action-buttons' extension if installed.
 		// Provides clickable buttons in the status bar for common tasks.
 		"actionButtons": {
-			"defaultColor": "#0080f7ff",
+			"defaultColor": "#58caffff",
 			"commands": [
 				{
 					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./launch_emulator_auto_connect.sh",
 					"name": "$(vm) Emulator",
-					"color": "#0080f7ff",
 					"singleInstance": true,
 					"tooltip": "Start the Legacy Pepper Emulator"
 				},
@@ -54,7 +53,6 @@
 					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./connect_physical_robot.sh",
 					"name": "$(plug) Connect IRL Pepper",
-					"color": "#0080f7ff",
 					"singleInstance": true,
 					"tooltip": "Connect to a physical robot via ADB"
 				},
@@ -82,15 +80,15 @@
 				{
 					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./stop_app.sh",
-					"name": "$(stop) StopApp",
+					"name": "$(stop)",
 					"color": "#F44336",
 					"singleInstance": true
 				},
 				{
 					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./kill_all.sh",
-					"name": "$(trash) KillAll",
-					"color": "#B71C1C",
+					"name": "$(trash)",
+					"color": "#F44336",
 					"singleInstance": true
 				}
 			]
