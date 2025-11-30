@@ -45,3 +45,6 @@ The workspace (`PepperAndroid.code-workspace`) manages multiple folders:
 
 ## Adding New Projects
 See [README-New-Project-Setup.md](README-New-Project-Setup.md) for detailed instructions.
+
+## Recommended Extensions
+See [EXTENSIONS.md](EXTENSIONS.md) for a curated list of extensions required for this workspace, including setup instructions.

@@ -10,9 +10,16 @@
 	],
 	"extensions": {
 		"recommendations": [
+			"fwcd.kotlin",
+			"adelphes.android",
+			"toroxx.avd-manager",
+			"vscjava.vscode-java-pack",
+			"vscjava.vscode-gradle",
 			"seunlanlege.action-buttons",
 			"spmeesseman.vscode-taskexplorer",
-			"fwcd.kotlin"
+			"ms-python.python",
+			"naumovs.color-highlight",
+			"anseki.vscode-color"
 		]
 	},
 	"settings": {

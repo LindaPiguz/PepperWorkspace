@@ -19,11 +19,19 @@ echo ""
 echo -e "${YELLOW}Required Extensions:${NC}"
 if [ -f "$WORKSPACE_FILE" ]; then
     # Extract extensions from the JSON file using grep/sed (simple parsing)
-    grep -A 20 '"recommendations": \[' "$WORKSPACE_FILE" | grep -v "recommendations" | grep -v "\[" | sed '/]/q' | sed 's/^[ \t]*//;s/[",]//g' | while read -r ext; do
+    # Use process substitution to avoid subshell variable scope issue
+    while read -r ext; do
         if [ ! -z "$ext" ] && [ "$ext" != "]" ]; then
              echo -e "  - ${GREEN}$ext${NC}"
+             EXT_LIST+="$ext\n"
         fi
-    done
+    done < <(grep -A 20 '"recommendations": \[' "$WORKSPACE_FILE" | grep -v "recommendations" | grep -v "\[" | sed '/]/q' | sed 's/^[ \t]*//;s/[",]//g')
+    
+    # Show GUI popup if Zenity is available
+    # Show GUI popup if Zenity is available
+    if command -v zenity &> /dev/null; then
+        zenity --info --title="Pepper Workspace Setup" --text="<b>Welcome to the Pepper Workspace!</b>\n\nWe recommend installing the suggested extensions for the best experience.\n\n<b>Please check the 'EXTENSIONS.md' file that just opened.</b>\n\nIt contains the list of extensions and instructions on how to configure the Marketplace if needed." --width=400
+    fi
 else
     echo "  (Could not read workspace file to list extensions)"
 fi
@@ -34,7 +42,7 @@ echo -e "${YELLOW}Opening Documentation...${NC}"
 # 2. Detect Editor and Open Files
 # We prioritize 'antigravity' as requested, then 'code', then others.
 
-FILES_TO_OPEN="$WORKSPACE_DIR/README.md $WORKSPACE_DIR/README-New-Project-Setup.md"
+FILES_TO_OPEN="$WORKSPACE_DIR/EXTENSIONS.md $WORKSPACE_DIR/README.md $WORKSPACE_DIR/README-New-Project-Setup.md"
 
 if command -v antigravity &> /dev/null; then
     echo "Detected Editor: Antigravity"
