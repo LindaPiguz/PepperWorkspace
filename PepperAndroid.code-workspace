@@ -40,7 +40,7 @@
 		// Configuration for 'seunlanlege.action-buttons' extension if installed.
 		// Provides clickable buttons in the status bar for common tasks.
 		"actionButtons": {
-			"defaultColor": "#0080ffff",
+			"defaultColor": "#0182ebff",
 			"commands": [
 				{
 					"name": "$(vm) Emulator",
@@ -55,34 +55,30 @@
 				{
 					"cwd": "${workspaceFolder}/scripts",
 					"command": "./monitor_logcat.py",
-					"name": "Logcat",
+					"name": "$(terminal) Logcat",
 					"color": "#4CAF50",
-					"singleInstance": true,
-					"icon": "octoface"
+					"singleInstance": true
 				},
 				{
-					"cwd": "${workspaceFolder}",
-					"command": "./gradlew assembleDebug",
-					"name": " ",
+					"cwd": "${workspaceFolder}/scripts",
+					"command": "./build_app.sh",
+					"name": "$(tools)",
 					"color": "white",
-					"singleInstance": true,
-					"icon": "tools"
+					"singleInstance": true
 				},
 				{
 					"cwd": "${workspaceFolder}/scripts",
 					"command": "./quick_run.sh",
-					"name": " ",
+					"name": "$(play)",
 					"color": "#4CAF50",
-					"singleInstance": true,
-					"icon": "play"
+					"singleInstance": true
 				},
 				{
 					"cwd": "${workspaceFolder}/scripts",
 					"command": "./stop_app.sh",
-					"name": " ",
+					"name": "$(stop)",
 					"color": "#F44336",
-					"singleInstance": true,
-					"icon": "stop"
+					"singleInstance": true
 				}
 			]
 		},

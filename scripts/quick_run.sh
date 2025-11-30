@@ -9,17 +9,11 @@ NC='\033[0m' # No Color
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CONFIG_FILE="$SCRIPT_DIR/.active_config"
 
-# 1. Load Configuration
-if [ -f "$CONFIG_FILE" ]; then
-    source "$CONFIG_FILE"
-else
-    echo -e "${RED}Error: Configuration file not found at $CONFIG_FILE${NC}"
-    echo "Please run the Setup Project script first."
-    exit 1
-fi
+# 1. Resolve Project
+source "$SCRIPT_DIR/resolve_project.sh"
 
 if [ -z "$PROJECT_DIR" ] || [ -z "$PEPPER_PACKAGE" ]; then
-    echo -e "${RED}Error: PROJECT_DIR or PEPPER_PACKAGE not defined in config.${NC}"
+    echo -e "${RED}Error: Could not resolve active project.${NC}"
     exit 1
 fi
 
