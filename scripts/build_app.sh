@@ -12,16 +12,14 @@ echo "Building Project: $PROJECT_DIR"
 
 cd "$PROJECT_DIR" || exit 1
 
-# 2. Run Gradle Build
-./gradlew assembleDebug
+# 2. Run Smart Build (Build Only)
+"$SCRIPT_DIR/smart_build.py" --action build "$PROJECT_DIR"
 
 if [ $? -eq 0 ]; then
     if command -v zenity &> /dev/null; then
         zenity --info --text="Build Successful!" --timeout=3
     fi
 else
-    if command -v zenity &> /dev/null; then
-        zenity --error --text="Build Failed! Check terminal for details."
-    fi
+    # smart_build.py already prints errors
     exit 1
 fi

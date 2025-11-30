@@ -18,38 +18,13 @@ if [ -z "$PROJECT_DIR" ] || [ -z "$PEPPER_PACKAGE" ]; then
 fi
 
 echo -e "${YELLOW}Target Project:${NC} $PROJECT_DIR"
-echo -e "${YELLOW}Package:${NC} $PEPPER_PACKAGE"
 
-cd "$PROJECT_DIR" || exit 1
-
-# 2. Build (AssembleDebug)
-echo -e "\n${YELLOW}Building APK...${NC}"
-./gradlew assembleDebug
+# 2. Run Smart Build (Build & Run)
+"$SCRIPT_DIR/smart_build.py" --action run "$PROJECT_DIR"
 
 if [ $? -ne 0 ]; then
-    echo -e "${RED}Build Failed!${NC}"
+    echo -e "${RED}Operation Failed!${NC}"
     exit 1
 fi
 
-# 3. Install
-echo -e "\n${YELLOW}Installing APK...${NC}"
-# Find the APK (handling potential variations in output path)
-APK_PATH=$(find app/build/outputs/apk/debug -name "*.apk" | head -n 1)
-
-if [ -z "$APK_PATH" ]; then
-    echo -e "${RED}Error: Could not find generated APK in app/build/outputs/apk/debug${NC}"
-    exit 1
-fi
-
-adb install -r "$APK_PATH"
-
-if [ $? -ne 0 ]; then
-    echo -e "${RED}Install Failed!${NC}"
-    exit 1
-fi
-
-# 4. Launch
-echo -e "\n${YELLOW}Launching App...${NC}"
-adb shell monkey -p "$PEPPER_PACKAGE" -c android.intent.category.LAUNCHER 1
-
-echo -e "\n${GREEN}Done! App is running.${NC}"
+echo -e "\n${GREEN}Done!${NC}"
