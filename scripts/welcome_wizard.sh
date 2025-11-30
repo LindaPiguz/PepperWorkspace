@@ -15,6 +15,13 @@ echo -e "${BLUE}   Pepper Android Workspace Setup       ${NC}"
 echo -e "${BLUE}========================================${NC}"
 echo ""
 
+# Check if setup has already run
+SETUP_FLAG="$WORKSPACE_DIR/.setup_complete"
+if [ -f "$SETUP_FLAG" ]; then
+    echo "Setup already completed. (Delete .setup_complete to run again)"
+    exit 0
+fi
+
 # 1. List Recommended Extensions
 echo -e "${YELLOW}Required Extensions:${NC}"
 if [ -f "$WORKSPACE_FILE" ]; then
@@ -62,3 +69,4 @@ fi
 
 echo ""
 echo -e "${BLUE}Setup Complete!${NC}"
+touch "$SETUP_FLAG"

@@ -40,7 +40,7 @@
 		// Configuration for 'seunlanlege.action-buttons' extension if installed.
 		// Provides clickable buttons in the status bar for common tasks.
 		"actionButtons": {
-			"defaultColor": "#0aa9d9ff",
+			"defaultColor": "#0080ffff",
 			"commands": [
 				{
 					"name": "$(vm) Emulator",

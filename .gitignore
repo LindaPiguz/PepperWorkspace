@@ -21,3 +21,4 @@ captures/
 # Pepper Workspace
 PepperMenu.desktop
 scripts/.active_config
+.setup_complete
