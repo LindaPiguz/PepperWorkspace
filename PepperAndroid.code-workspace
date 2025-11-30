@@ -40,7 +40,7 @@
 		// Configuration for 'seunlanlege.action-buttons' extension if installed.
 		// Provides clickable buttons in the status bar for common tasks.
 		"actionButtons": {
-			"defaultColor": "#0182ebff",
+			"defaultColor": "#0080f7ff",
 			"commands": [
 				{
 					"name": "$(vm) Emulator",
@@ -76,15 +76,15 @@
 				{
 					"cwd": "${workspaceFolder}/scripts",
 					"command": "./stop_app.sh",
-					"name": "$(stop) StopApp",
+					"name": "$(stop)",
 					"color": "#F44336",
 					"singleInstance": true
 				},
 				{
 					"cwd": "${workspaceFolder}/scripts",
 					"command": "./kill_all.sh",
-					"name": "$(trash) KillAll",
-					"color": "#B71C1C",
+					"name": "$(trash)",
+					"color": "#F44336",
 					"singleInstance": true
 				}
 			]
