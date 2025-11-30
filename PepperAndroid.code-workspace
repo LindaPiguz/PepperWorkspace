@@ -90,6 +90,14 @@
 					"name": "$(trash)",
 					"color": "#F44336",
 					"singleInstance": true
+				},
+				{
+					"cwd": "/home/linda/PepperProjects/scripts",
+					"command": "./device_explorer.py",
+					"name": "$(folder)",
+					"color": "#FFC107",
+					"singleInstance": true,
+					"tooltip": "Open Device File Explorer"
 				}
 			]
 		},
