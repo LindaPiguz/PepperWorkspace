@@ -53,9 +53,36 @@
 					"tooltip": "Connect to a physical robot via ADB"
 				},
 				{
-					"name": "$(list-flat) Monitor Logs",
-					"command": "${workspaceFolder}/scripts/monitor_logcat.py",
-					"tooltip": "Monitor Logcat for Active Project"
+					"cwd": "${workspaceFolder}/scripts",
+					"command": "./monitor_logcat.py",
+					"name": "Logcat",
+					"color": "#4CAF50",
+					"singleInstance": true,
+					"icon": "octoface"
+				},
+				{
+					"cwd": "${workspaceFolder}",
+					"command": "./gradlew assembleDebug",
+					"name": " ",
+					"color": "white",
+					"singleInstance": true,
+					"icon": "tools"
+				},
+				{
+					"cwd": "${workspaceFolder}/scripts",
+					"command": "./quick_run.sh",
+					"name": " ",
+					"color": "#4CAF50",
+					"singleInstance": true,
+					"icon": "play"
+				},
+				{
+					"cwd": "${workspaceFolder}/scripts",
+					"command": "./stop_app.sh",
+					"name": " ",
+					"color": "#F44336",
+					"singleInstance": true,
+					"icon": "stop"
 				}
 			]
 		},
