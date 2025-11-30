@@ -43,52 +43,54 @@
 			"defaultColor": "#0080f7ff",
 			"commands": [
 				{
-					"cwd": "${workspaceFolder}/scripts",
+					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./launch_emulator_auto_connect.sh",
 					"name": "$(vm) Emulator",
+					"color": "#0080f7ff",
 					"singleInstance": true,
 					"tooltip": "Start the Legacy Pepper Emulator"
 				},
 				{
-					"cwd": "${workspaceFolder}/scripts",
+					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./connect_physical_robot.sh",
 					"name": "$(plug) Connect IRL Pepper",
+					"color": "#0080f7ff",
 					"singleInstance": true,
 					"tooltip": "Connect to a physical robot via ADB"
 				},
 				{
-					"cwd": "${workspaceFolder}/scripts",
+					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./monitor_logcat.py",
 					"name": "$(terminal) Logcat",
 					"color": "#4CAF50",
 					"singleInstance": true
 				},
 				{
-					"cwd": "${workspaceFolder}/scripts",
+					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./build_app.sh",
 					"name": "$(tools)",
 					"color": "white",
 					"singleInstance": true
 				},
 				{
-					"cwd": "${workspaceFolder}/scripts",
+					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./quick_run.sh",
 					"name": "$(play)",
 					"color": "#4CAF50",
 					"singleInstance": true
 				},
 				{
-					"cwd": "${workspaceFolder}/scripts",
+					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./stop_app.sh",
-					"name": "$(stop)",
+					"name": "$(stop) StopApp",
 					"color": "#F44336",
 					"singleInstance": true
 				},
 				{
-					"cwd": "${workspaceFolder}/scripts",
+					"cwd": "/home/linda/PepperProjects/scripts",
 					"command": "./kill_all.sh",
-					"name": "$(trash)",
-					"color": "#F44336",
+					"name": "$(trash) KillAll",
+					"color": "#B71C1C",
 					"singleInstance": true
 				}
 			]
