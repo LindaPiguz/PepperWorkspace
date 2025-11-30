@@ -76,8 +76,15 @@
 				{
 					"cwd": "${workspaceFolder}/scripts",
 					"command": "./stop_app.sh",
-					"name": "$(stop)",
+					"name": "$(stop) StopApp",
 					"color": "#F44336",
+					"singleInstance": true
+				},
+				{
+					"cwd": "${workspaceFolder}/scripts",
+					"command": "./kill_all.sh",
+					"name": "$(trash) KillAll",
+					"color": "#B71C1C",
 					"singleInstance": true
 				}
 			]
