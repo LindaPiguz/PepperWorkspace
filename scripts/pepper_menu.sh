@@ -14,7 +14,7 @@ while true; do
     case $choice in
         1)
             echo "Starting Emulator..."
-            nohup ./scripts/launch_emulator_auto_connect.sh >/dev/null 2>&1 &
+            ./scripts/launch_emulator_auto_connect.sh
             ;;
         2)
             nohup ./scripts/connect_physical_robot.sh >/dev/null 2>&1 &

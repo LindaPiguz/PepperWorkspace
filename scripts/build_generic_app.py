@@ -89,6 +89,10 @@ def select_device():
             print("Error: No devices connected!")
             sys.exit(1)
         
+        # Deduplicate: If emulator-5554 is present, ignore localhost:5555 (they are likely the same)
+        if "emulator-5554" in devices and "localhost:5555" in devices:
+            devices.remove("localhost:5555")
+            
         if len(devices) == 1:
             return devices[0]
         
@@ -104,11 +108,15 @@ def select_device():
         sys.exit(1)
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: build_generic_app.py <project_root>")
-        sys.exit(1)
+    # Parse arguments
+    import argparse
+    parser = argparse.ArgumentParser(description='Build Android App')
+    parser.add_argument('project_root', help='Root directory of the project')
+    parser.add_argument('--flavor', action='append', help='Specify flavor (e.g. mode=prod)')
+    parser.add_argument('--build-type', help='Specify build type (Debug or Release)')
+    args = parser.parse_args()
 
-    project_root = sys.argv[1]
+    project_root = args.project_root
     app_dir = os.path.join(project_root, "app")
     gradle_file = os.path.join(app_dir, "build.gradle")
     launch_json = os.path.join(project_root, ".vscode", "launch.json")
@@ -124,30 +132,48 @@ def main():
     if not dimensions:
         print("No flavors found. Building default debug.")
         task = "assembleDebug"
+        build_type = "Debug" # Default
     else:
-        # Ask user for each dimension
+        # Check if flavors are provided via CLI
+        cli_flavors = {}
+        if args.flavor:
+            for f in args.flavor:
+                if '=' in f:
+                    k, v = f.split('=', 1)
+                    cli_flavors[k] = v
+                else:
+                    # Try to guess dimension? No, strict format needed or just value matching
+                    pass
+
+        # Ask user for each dimension if not provided
         for dim in dimensions:
-            options = flavors.get(dim, [])
-            if not options:
-                continue
-            
-            # Prepare Zenity list
-            zenity_args = ["--list", "--title=Select " + dim.capitalize(), "--text=Choose " + dim, "--column=Flavor"] + options
-            choice = run_zenity(zenity_args)
-            if not choice:
-                print("Cancelled.")
-                sys.exit(1)
-            selected_flavors.append(choice)
+            if dim in cli_flavors:
+                selected_flavors.append(cli_flavors[dim])
+            else:
+                options = flavors.get(dim, [])
+                if not options:
+                    continue
+                
+                # Prepare Zenity list
+                zenity_args = ["--list", "--title=Select " + dim.capitalize(), "--text=Choose " + dim, "--column=Flavor"] + options
+                choice = run_zenity(zenity_args)
+                if not choice:
+                    print("Cancelled.")
+                    sys.exit(1)
+                selected_flavors.append(choice)
         
         # Construct task name: assemble[Flavor1][Flavor2]...[BuildType]
         # Capitalize flavors
         caps_flavors = "".join([f[0].upper() + f[1:] for f in selected_flavors])
     
-    # Ask for Build Type
-    build_type = run_zenity(["--list", "--title=Select Build Type", "--text=Choose Build Type", "--column=Type", "Debug", "Release"])
-    if not build_type:
-        print("Cancelled.")
-        sys.exit(1)
+    # Ask for Build Type if not provided
+    if args.build_type:
+        build_type = args.build_type
+    else:
+        build_type = run_zenity(["--list", "--title=Select Build Type", "--text=Choose Build Type", "--column=Type", "Debug", "Release"])
+        if not build_type:
+            print("Cancelled.")
+            sys.exit(1)
         
     task = f"assemble{caps_flavors}{build_type}"
     is_debug = (build_type == "Debug")

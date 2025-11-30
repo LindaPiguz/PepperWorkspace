@@ -33,7 +33,7 @@
 		// Configuration for 'seunlanlege.action-buttons' extension if installed.
 		// Provides clickable buttons in the status bar for common tasks.
 		"actionButtons": {
-			"defaultColor": "#4CAF50", // Pepper Green
+			"defaultColor": "#0aa9d9ff",
 			"commands": [
 				{
 					"name": "$(vm) Emulator",
@@ -41,14 +41,14 @@
 					"tooltip": "Start the Legacy Pepper Emulator"
 				},
 				{
-					"name": "$(plug) Connect",
+					"name": "$(plug) Connect IRL Pepper",
 					"command": "${workspaceFolder}/scripts/connect_physical_robot.sh",
 					"tooltip": "Connect to a physical robot via ADB"
 				},
 				{
-					"name": "$(sync) Auto-Build",
-					"command": "${workspaceFolder}/scripts/gradle_auto_build.sh",
-					"tooltip": "Start Gradle Continuous Build"
+					"name": "$(list-flat) Monitor Logs",
+					"command": "${workspaceFolder}/scripts/monitor_logcat.py",
+					"tooltip": "Monitor Logcat for Active Project"
 				}
 			]
 		},
@@ -74,6 +74,20 @@
 			}
 		],
 		"tasks": [
+			{
+				// --- TASK 00: WELCOME / SETUP ---
+				"label": "00. Welcome / Setup",
+				"type": "shell",
+				"command": "${workspaceFolder}/scripts/welcome_wizard.sh",
+				"runOptions": {
+					"runOn": "folderOpen"
+				},
+				"presentation": {
+					"reveal": "silent",
+					"panel": "shared"
+				},
+				"problemMatcher": []
+			},
 			{
 				// --- MAIN MENU ---
 				"label": "0. Open Pepper Menu",
@@ -116,7 +130,7 @@
 				"presentation": {
 					"reveal": "always",
 					"panel": "new",
-					"focus": false
+					"focus": true
 				},
 				"group": "test",
 				"problemMatcher": {
@@ -177,25 +191,34 @@
 				}
 			},
 			{
-				// --- TASK 6: GRADLE CONTINUOUS BUILD ---
-				// Watches for changes and rebuilds automatically
-				"label": "6. Gradle: Continuous Build",
+				// --- TASK 7: MONITOR LOGS ---
+				"label": "7. Monitor Logs (Active Project)",
 				"type": "shell",
-				"command": "./gradlew",
-				"args": [
-					"assembleDebug",
-					"--continuous"
-				],
+				"command": "${workspaceFolder}/scripts/monitor_logcat.py",
 				"icon": {
-					"id": "sync"
+					"id": "list-flat"
 				},
 				"isBackground": true,
 				"presentation": {
-					"reveal": "silent",
-					"panel": "dedicated"
+					"reveal": "always",
+					"panel": "dedicated",
+					"focus": true
 				},
-				"group": "build",
-				"problemMatcher": "$gradle"
+				"problemMatcher": {
+					"pattern": [
+						{
+							"regexp": ".",
+							"file": 1,
+							"location": 2,
+							"message": 3
+						}
+					],
+					"background": {
+						"activeOnStart": true,
+						"beginsPattern": "^.*Logcat Monitor:.*",
+						"endsPattern": "^>>> MONITOR STARTED <<<"
+					}
+				}
 			}
 		]
 	},
@@ -210,6 +233,7 @@
 				"mainActivity": "Default",
 				"appSrcRoot": "${workspaceFolder}/app/src/main",
 				"apkFile": "${workspaceFolder}/app/build/outputs/apk/debug/app-debug.apk",
+				"preLaunchTask": "7. Monitor Logs (Active Project)",
 				"adbPort": 5037
 			}
 		]
