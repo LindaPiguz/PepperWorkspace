@@ -11,7 +11,9 @@ if [ -z "$IP" ]; then
 fi
 
 # Connect
+echo "Attempting to connect to $IP..."
 OUTPUT=$($ADB connect $IP)
+echo "ADB Output: $OUTPUT"
 
 if echo "$OUTPUT" | grep -q "connected"; then
     zenity --info --text="Successfully connected to Pepper at $IP"

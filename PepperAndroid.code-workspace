@@ -12,8 +12,7 @@
 		"recommendations": [
 			"seunlanlege.action-buttons",
 			"spmeesseman.vscode-taskexplorer",
-			"mathiasfrohlich.kotlin",
-			"nont.vscode-common-kotlin"
+			"fwcd.kotlin"
 		]
 	},
 	"settings": {
@@ -34,21 +33,21 @@
 		// Configuration for 'seunlanlege.action-buttons' extension if installed.
 		// Provides clickable buttons in the status bar for common tasks.
 		"actionButtons": {
-			"defaultColor": "#ff0033", // Pepper Red
+			"defaultColor": "#4CAF50", // Pepper Green
 			"commands": [
 				{
 					"name": "$(vm) Emulator",
-					"command": "tasks: 2. Start Pepper Emulator",
+					"command": "${workspaceFolder}/scripts/launch_emulator_auto_connect.sh",
 					"tooltip": "Start the Legacy Pepper Emulator"
 				},
 				{
 					"name": "$(plug) Connect",
-					"command": "tasks: 3. Connect Physical Pepper",
+					"command": "${workspaceFolder}/scripts/connect_physical_robot.sh",
 					"tooltip": "Connect to a physical robot via ADB"
 				},
 				{
 					"name": "$(sync) Auto-Build",
-					"command": "tasks: 6. Gradle: Continuous Build",
+					"command": "${workspaceFolder}/scripts/gradle_auto_build.sh",
 					"tooltip": "Start Gradle Continuous Build"
 				}
 			]

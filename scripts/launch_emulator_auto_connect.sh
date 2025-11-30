@@ -11,6 +11,7 @@ ADB="/home/linda/Android/Sdk/platform-tools/adb"
 
 # Loop for up to 60 seconds
 for i in {1..30}; do
+    echo "Attempt $i/30: Connecting to localhost:5555..."
     sleep 2
     if $ADB connect localhost:5555 | grep -q "connected"; then
         echo "Emulator Connected!"
