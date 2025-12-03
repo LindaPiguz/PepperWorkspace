@@ -1,7 +1,18 @@
 #!/bin/bash
 while true; do
+    # Check connection status
+    ADB_OUTPUT=$(adb devices | grep -v "List" | grep "device$")
+    if [ -z "$ADB_OUTPUT" ]; then
+        STATUS="Not Connected"
+    else
+        # Get first device
+        DEVICE=$(echo "$ADB_OUTPUT" | head -n 1 | awk '{print $1}')
+        STATUS="Connected to $DEVICE"
+    fi
+
     echo "=========================================="
     echo "      Pepper Development Menu"
+    echo "      Status: $STATUS"
     echo "=========================================="
     echo "1) Start Pepper Emulator (Auto-Connect)"
     echo "2) Connect Physical Pepper (GUI)"

@@ -59,6 +59,16 @@ for i in {1..30}; do
         echo "      Ready for use with Android Extension."
         echo "===================================================="
         
+        # Update Status Bar
+        UPDATE_SCRIPT="/home/linda/PepperProjects/scripts/update_status_bar.py"
+        if [ -f "$UPDATE_SCRIPT" ] && command -v python3 &> /dev/null; then
+            "$UPDATE_SCRIPT" "\$(vm) Emulator Connected" "#4CAF50"
+            # Double-tap: Touch the workspace file to force VS Code refresh
+            (sleep 1.5 && touch "/home/linda/PepperProjects/PepperAndroid.code-workspace") &
+        else
+            echo "Warning: Status bar update failed (Script or Python missing)"
+        fi
+        
         # Pause to let the user see the status
         echo "Press Enter to close this window..."
         read

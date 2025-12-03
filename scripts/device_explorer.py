@@ -3,6 +3,8 @@ import tkinter as tk
 from tkinter import ttk, messagebox, filedialog
 import subprocess
 import os
+import threading
+
 
 class DeviceExplorer(tk.Tk):
     def __init__(self):
@@ -12,6 +14,14 @@ class DeviceExplorer(tk.Tk):
 
         self.current_path = "/sdcard"
         self.history = []
+        
+        # Detect device
+        self.device_id = self.get_connected_device()
+        if self.device_id:
+            self.title(f"Pepper Device Explorer - Connected to {self.device_id}")
+        else:
+            self.title("Pepper Device Explorer - No Device Found")
+            messagebox.showwarning("No Device", "No ADB device found. Please connect a robot or emulator.")
 
         # UI Layout
         top_frame = ttk.Frame(self)
@@ -31,6 +41,7 @@ class DeviceExplorer(tk.Tk):
         ttk.Button(top_frame, text="Clear", command=self.clear_search).pack(side=tk.LEFT)
         
         ttk.Button(top_frame, text="Refresh", command=self.refresh).pack(side=tk.RIGHT)
+
 
         # Treeview for files
         self.tree = ttk.Treeview(self, columns=("Size", "Date"), selectmode="browse")
@@ -52,14 +63,34 @@ class DeviceExplorer(tk.Tk):
 
         self.refresh()
 
-    def run_adb(self, cmd):
-        # Force target emulator-5554 if multiple devices are present
-        # A better solution would be a device selector, but for this workspace, 5554 is standard.
-        if "adb " in cmd and "-s " not in cmd:
-            cmd = cmd.replace("adb ", "adb -s emulator-5554 ")
+    def get_connected_device(self):
+        try:
+            output = subprocess.check_output("adb devices", shell=True, text=True, timeout=5)
+            lines = output.strip().split('\n')[1:] # Skip header
+            devices = [line.split()[0] for line in lines if line.strip() and "device" in line]
+            
+            if not devices:
+                return None
+            
+            # Prefer physical device if multiple (usually starts with 192 or is not emulator)
+            for dev in devices:
+                if not dev.startswith("emulator"):
+                    return dev
+            
+            return devices[0] # Default to first found
+        except:
+            return None
+
+    def run_adb(self, cmd, timeout=10):
+        # Inject device ID if we have one and it's not already in the command
+        if self.device_id and "adb " in cmd and "-s " not in cmd:
+            cmd = cmd.replace("adb ", f"adb -s {self.device_id} ")
             
         try:
-            return subprocess.check_output(cmd, shell=True, text=True)
+            return subprocess.check_output(cmd, shell=True, text=True, timeout=timeout)
+        except subprocess.TimeoutExpired:
+            print(f"Command timed out: {cmd}")
+            return None
         except subprocess.CalledProcessError as e:
             return None
 
@@ -76,7 +107,10 @@ class DeviceExplorer(tk.Tk):
         
         # Use find command
         # -L to follow symlinks? Maybe not to avoid loops.
-        cmd = f"adb -s emulator-5554 shell find \"{self.current_path}\" -name \"*{query}*\""
+        # Use find command
+        # -L to follow symlinks? Maybe not to avoid loops.
+        device_flag = f"-s {self.device_id}" if self.device_id else ""
+        cmd = f"adb {device_flag} shell find \"{self.current_path}\" -name \"*{query}*\""
         output = self.run_adb(cmd)
         
         if output:
@@ -108,65 +142,85 @@ class DeviceExplorer(tk.Tk):
         self.refresh()
 
     def refresh(self):
-        self.path_label.config(text=self.current_path)
+        self.path_label.config(text=f"Loading {self.current_path}...")
+        
+        # Update connection status
+        self.device_id = self.get_connected_device()
+        if self.device_id:
+            self.title(f"Pepper Device Explorer - Connected to {self.device_id}")
+        else:
+            self.title("Pepper Device Explorer - Not Connected")
+
+        # Clear current view immediately to show something is happening
+        # Clear current view immediately to show something is happening
         for item in self.tree.get_children():
             self.tree.delete(item)
+            
+        # Run in background
+        threading.Thread(target=self._refresh_thread, daemon=True).start()
 
-        # Use ls -l to get details. 
-        # Note: Android's ls -l output can vary (missing size for dirs).
-        # We append a trailing slash to ensure we list the *contents* of the directory,
-        # especially important for symlinks like /sdcard.
+    def _refresh_thread(self):
         list_path = self.current_path
         if not list_path.endswith('/'):
             list_path += '/'
             
-        cmd = f"adb -s emulator-5554 shell ls -l \"{list_path}\""
-        output = self.run_adb(cmd)
+        device_flag = f"-s {self.device_id}" if self.device_id else ""
+        cmd = f"adb {device_flag} shell ls -l \"{list_path}\""
         
-        if output:
-            lines = output.split('\n')
-            for line in lines:
-                line = line.strip()
-                if not line or line.startswith("total"): continue
+        output = self.run_adb(cmd, timeout=15)
+        
+        # Schedule UI update on main thread
+        self.after(0, self._populate_tree, output)
+
+    def _populate_tree(self, output):
+        self.path_label.config(text=self.current_path)
+        
+        if not output:
+            return
+
+        lines = output.split('\n')
+        for line in lines:
+            line = line.strip()
+            if not line or line.startswith("total"): continue
+            
+            parts = line.split()
+            if len(parts) < 6: continue
+            
+            # Parse based on Date/Time position
+            # Format usually: perms owner group [size] date time name
+            # We look for the date pattern YYYY-MM-DD
+            
+            date_idx = -1
+            for i, part in enumerate(parts):
+                if len(part) == 10 and part[4] == '-' and part[7] == '-':
+                    date_idx = i
+                    break
+            
+            if date_idx != -1 and date_idx + 2 < len(parts):
+                perms = parts[0]
+                date = parts[date_idx]
+                time = parts[date_idx+1]
+                name = " ".join(parts[date_idx+2:])
                 
-                parts = line.split()
-                if len(parts) < 6: continue
+                # Size is usually before date
+                size = "-"
+                if date_idx > 0:
+                    potential_size = parts[date_idx-1]
+                    if potential_size.isdigit():
+                        size = potential_size
                 
-                # Parse based on Date/Time position
-                # Format usually: perms owner group [size] date time name
-                # We look for the date pattern YYYY-MM-DD
+                is_dir = perms.startswith('d')
                 
-                date_idx = -1
-                for i, part in enumerate(parts):
-                    if len(part) == 10 and part[4] == '-' and part[7] == '-':
-                        date_idx = i
-                        break
+                # Icon prefix
+                icon = "📁 " if is_dir else "📄 "
                 
-                if date_idx != -1 and date_idx + 2 < len(parts):
-                    perms = parts[0]
-                    date = parts[date_idx]
-                    time = parts[date_idx+1]
-                    name = " ".join(parts[date_idx+2:])
-                    
-                    # Size is usually before date
-                    size = "-"
-                    if date_idx > 0:
-                        potential_size = parts[date_idx-1]
-                        if potential_size.isdigit():
-                            size = potential_size
-                    
-                    is_dir = perms.startswith('d')
-                    
-                    # Icon prefix
-                    icon = "📁 " if is_dir else "📄 "
-                    
-                    # Insert into tree
-                    self.tree.insert("", "end", text=f"{icon}{name}", values=(size, f"{date} {time}"), tags=("dir" if is_dir else "file",))
-                else:
-                    # Fallback for unexpected formats (just show name if possible)
-                    # Assuming last part is name
-                    name = parts[-1]
-                    self.tree.insert("", "end", text=f"❓ {name}", values=("?", "?"), tags=("file",))
+                # Insert into tree
+                self.tree.insert("", "end", text=f"{icon}{name}", values=(size, f"{date} {time}"), tags=("dir" if is_dir else "file",))
+            else:
+                # Fallback for unexpected formats (just show name if possible)
+                # Assuming last part is name
+                name = parts[-1]
+                self.tree.insert("", "end", text=f"❓ {name}", values=("?", "?"), tags=("file",))
 
     def go_up(self):
         if self.current_path == "/": return
@@ -235,8 +289,9 @@ class DeviceExplorer(tk.Tk):
             
         local_path = os.path.join(temp_dir, filename)
         
-        # Force target emulator-5554
-        cmd = f"adb -s emulator-5554 pull \"{remote_path}\" \"{local_path}\""
+        # Use detected device
+        device_flag = f"-s {self.device_id}" if self.device_id else ""
+        cmd = f"adb {device_flag} pull \"{remote_path}\" \"{local_path}\""
         
         try:
             subprocess.check_call(cmd, shell=True)
@@ -261,7 +316,8 @@ class DeviceExplorer(tk.Tk):
             remote_path = f"{self.current_path}/{name}".replace("//", "/")
             
         if messagebox.askyesno("Confirm Delete", f"Are you sure you want to delete '{name}'?"):
-            cmd = f"adb -s emulator-5554 shell rm -rf \"{remote_path}\""
+            device_flag = f"-s {self.device_id}" if self.device_id else ""
+            cmd = f"adb {device_flag} shell rm -rf \"{remote_path}\""
             try:
                 subprocess.check_call(cmd, shell=True)
                 # Refresh
